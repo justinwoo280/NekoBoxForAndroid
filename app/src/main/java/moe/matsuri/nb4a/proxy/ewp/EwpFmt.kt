@@ -16,6 +16,8 @@ import moe.matsuri.nb4a.SingBoxOptions.V2RayTransportOptions_GRPCOptions
 import moe.matsuri.nb4a.SingBoxOptions.V2RayTransportOptions_HTTPOptions
 import moe.matsuri.nb4a.SingBoxOptions.V2RayTransportOptions_HTTPUpgradeOptions
 import moe.matsuri.nb4a.SingBoxOptions.V2RayTransportOptions_WebsocketOptions
+import moe.matsuri.nb4a.SingBoxOptions.V2RayTransportOptions_XHTTPOptions
+import moe.matsuri.nb4a.SingBoxOptions.V2RayXHTTPXmuxOptions
 import moe.matsuri.nb4a.utils.listByLineOrComma
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
@@ -127,6 +129,33 @@ private fun buildEwpTransport(bean: EwpBean): V2RayTransportOptions? {
             type = "quic"
         }
 
+        "xhttp" -> V2RayTransportOptions_XHTTPOptions().apply {
+            type = "xhttp"
+            mode = bean.xhttpMode.takeIf { it.isNotBlank() } ?: "auto"
+            if (bean.host.isNotBlank()) host = bean.host
+            if (bean.path.isNotBlank()) path = bean.path
+            if (bean.xhttpPaddingBytes.isNotBlank()) x_padding_bytes = bean.xhttpPaddingBytes
+
+            val hasXmux = bean.xhttpXmuxMaxConcurrency.isNotBlank() ||
+                bean.xhttpXmuxMaxConnections.isNotBlank() ||
+                bean.xhttpXmuxCMaxReuseTimes.isNotBlank() ||
+                bean.xhttpXmuxHMaxRequestTimes.isNotBlank() ||
+                bean.xhttpXmuxHMaxReusableSecs.isNotBlank() ||
+                (bean.xhttpXmuxHKeepAlivePeriod != null && bean.xhttpXmuxHKeepAlivePeriod > 0)
+            if (hasXmux) {
+                xmux = V2RayXHTTPXmuxOptions().apply {
+                    if (bean.xhttpXmuxMaxConcurrency.isNotBlank()) max_concurrency = bean.xhttpXmuxMaxConcurrency
+                    if (bean.xhttpXmuxMaxConnections.isNotBlank()) max_connections = bean.xhttpXmuxMaxConnections
+                    if (bean.xhttpXmuxCMaxReuseTimes.isNotBlank()) c_max_reuse_times = bean.xhttpXmuxCMaxReuseTimes
+                    if (bean.xhttpXmuxHMaxRequestTimes.isNotBlank()) h_max_request_times = bean.xhttpXmuxHMaxRequestTimes
+                    if (bean.xhttpXmuxHMaxReusableSecs.isNotBlank()) h_max_reusable_secs = bean.xhttpXmuxHMaxReusableSecs
+                    if (bean.xhttpXmuxHKeepAlivePeriod != null && bean.xhttpXmuxHKeepAlivePeriod > 0) {
+                        h_keep_alive_period = bean.xhttpXmuxHKeepAlivePeriod.toLong()
+                    }
+                }
+            }
+        }
+
         else -> null
     }
 }
@@ -157,6 +186,10 @@ fun EwpBean.toUri(): String {
     if (type.isNotBlank() && type != "tcp") builder.addQueryParameter("type", type)
     if (host.isNotBlank()) builder.addQueryParameter("host", host)
     if (path.isNotBlank()) builder.addQueryParameter("path", path)
+
+    if (type == "xhttp" && xhttpMode.isNotBlank() && xhttpMode != "auto") {
+        builder.addQueryParameter("mode", xhttpMode)
+    }
 
     if (sni.isNotBlank()) builder.addQueryParameter("sni", sni)
     if (alpn.isNotBlank()) builder.addQueryParameter("alpn", alpn)
@@ -190,6 +223,10 @@ fun parseEwp(url: String): EwpBean {
         type = link.queryParameter("type") ?: "tcp"
         host = link.queryParameter("host") ?: ""
         path = link.queryParameter("path") ?: ""
+
+        if (type == "xhttp") {
+            xhttpMode = link.queryParameter("mode") ?: "auto"
+        }
 
         sni = link.queryParameter("sni") ?: ""
         alpn = link.queryParameter("alpn") ?: ""

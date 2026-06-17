@@ -4603,6 +4603,50 @@ public class SingBoxOptions {
 
     }
 
+    public static class V2RayXHTTPXmuxOptions extends SingBoxOption {
+
+        public String max_concurrency;
+
+        public String max_connections;
+
+        public String c_max_reuse_times;
+
+        public String h_max_request_times;
+
+        public String h_max_reusable_secs;
+
+        public Long h_keep_alive_period;
+
+    }
+
+    public static class V2RayTransportOptions_XHTTPOptions extends V2RayTransportOptions {
+
+        public String mode;
+
+        public String host;
+
+        public String path;
+
+        public Map<String, String> headers;
+
+        public String x_padding_bytes;
+
+        public Boolean no_grpc_header;
+
+        public Boolean no_sse_header;
+
+        public String sc_max_each_post_bytes;
+
+        public String sc_min_posts_interval_ms;
+
+        public Long sc_max_buffered_posts;
+
+        public String sc_stream_up_server_secs;
+
+        public V2RayXHTTPXmuxOptions xmux;
+
+    }
+
     // sing-box Options 生成器已经坏了，以下是从 husi 抄的
 
     public static class Outbound_EwpOptions extends Outbound {

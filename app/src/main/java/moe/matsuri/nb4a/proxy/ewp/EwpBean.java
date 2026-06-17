@@ -51,6 +51,16 @@ public class EwpBean extends AbstractBean {
     public String host;
     public String path;
 
+    // --------------------------------------- xhttp
+    public String xhttpMode;
+    public String xhttpPaddingBytes;
+    public String xhttpXmuxMaxConcurrency;
+    public String xhttpXmuxMaxConnections;
+    public String xhttpXmuxCMaxReuseTimes;
+    public String xhttpXmuxHMaxRequestTimes;
+    public String xhttpXmuxHMaxReusableSecs;
+    public Integer xhttpXmuxHKeepAlivePeriod;
+
     // --------------------------------------- TLS
     public String sni;
     public String alpn;
@@ -90,6 +100,15 @@ public class EwpBean extends AbstractBean {
         if (host == null) host = "";
         if (path == null) path = "";
 
+        if (xhttpMode == null || xhttpMode.isEmpty()) xhttpMode = "auto";
+        if (xhttpPaddingBytes == null) xhttpPaddingBytes = "";
+        if (xhttpXmuxMaxConcurrency == null) xhttpXmuxMaxConcurrency = "";
+        if (xhttpXmuxMaxConnections == null) xhttpXmuxMaxConnections = "";
+        if (xhttpXmuxCMaxReuseTimes == null) xhttpXmuxCMaxReuseTimes = "";
+        if (xhttpXmuxHMaxRequestTimes == null) xhttpXmuxHMaxRequestTimes = "";
+        if (xhttpXmuxHMaxReusableSecs == null) xhttpXmuxHMaxReusableSecs = "";
+        if (xhttpXmuxHKeepAlivePeriod == null) xhttpXmuxHKeepAlivePeriod = 0;
+
         if (sni == null) sni = "";
         if (alpn == null) alpn = "";
         if (certificates == null) certificates = "";
@@ -119,7 +138,8 @@ public class EwpBean extends AbstractBean {
         // Schema version - bump on field addition
         // v0: initial layout (EWP/v2.0)
         // v1: + serverStaticPubKey (EWP/v2.1 opt-in)
-        output.writeInt(1);
+        // v2: + xhttp transport fields
+        output.writeInt(2);
         super.serialize(output);
 
         output.writeString(uuid);
@@ -128,6 +148,15 @@ public class EwpBean extends AbstractBean {
         output.writeString(type);
         output.writeString(host);
         output.writeString(path);
+
+        output.writeString(xhttpMode);
+        output.writeString(xhttpPaddingBytes);
+        output.writeString(xhttpXmuxMaxConcurrency);
+        output.writeString(xhttpXmuxMaxConnections);
+        output.writeString(xhttpXmuxCMaxReuseTimes);
+        output.writeString(xhttpXmuxHMaxRequestTimes);
+        output.writeString(xhttpXmuxHMaxReusableSecs);
+        output.writeInt(xhttpXmuxHKeepAlivePeriod);
 
         output.writeString(sni);
         output.writeString(alpn);
@@ -170,6 +199,26 @@ public class EwpBean extends AbstractBean {
         type = input.readString();
         host = input.readString();
         path = input.readString();
+
+        if (version >= 2) {
+            xhttpMode = input.readString();
+            xhttpPaddingBytes = input.readString();
+            xhttpXmuxMaxConcurrency = input.readString();
+            xhttpXmuxMaxConnections = input.readString();
+            xhttpXmuxCMaxReuseTimes = input.readString();
+            xhttpXmuxHMaxRequestTimes = input.readString();
+            xhttpXmuxHMaxReusableSecs = input.readString();
+            xhttpXmuxHKeepAlivePeriod = input.readInt();
+        } else {
+            xhttpMode = "auto";
+            xhttpPaddingBytes = "";
+            xhttpXmuxMaxConcurrency = "";
+            xhttpXmuxMaxConnections = "";
+            xhttpXmuxCMaxReuseTimes = "";
+            xhttpXmuxHMaxRequestTimes = "";
+            xhttpXmuxHMaxReusableSecs = "";
+            xhttpXmuxHKeepAlivePeriod = 0;
+        }
 
         sni = input.readString();
         alpn = input.readString();

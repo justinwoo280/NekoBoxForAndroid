@@ -26,6 +26,15 @@ class EwpSettingsActivity : ProfileSettingsActivity<EwpBean>() {
     private val host = pbm.add(PreferenceBinding(Type.Text, "host"))
     private val path = pbm.add(PreferenceBinding(Type.Text, "path"))
 
+    private val xhttpMode = pbm.add(PreferenceBinding(Type.Text, "xhttpMode"))
+    private val xhttpPaddingBytes = pbm.add(PreferenceBinding(Type.Text, "xhttpPaddingBytes"))
+    private val xhttpXmuxMaxConcurrency = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxMaxConcurrency"))
+    private val xhttpXmuxMaxConnections = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxMaxConnections"))
+    private val xhttpXmuxCMaxReuseTimes = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxCMaxReuseTimes"))
+    private val xhttpXmuxHMaxRequestTimes = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxHMaxRequestTimes"))
+    private val xhttpXmuxHMaxReusableSecs = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxHMaxReusableSecs"))
+    private val xhttpXmuxHKeepAlivePeriod = pbm.add(PreferenceBinding(Type.TextToInt, "xhttpXmuxHKeepAlivePeriod"))
+
     private val sni = pbm.add(PreferenceBinding(Type.Text, "sni"))
     private val alpn = pbm.add(PreferenceBinding(Type.Text, "alpn"))
     private val certificates = pbm.add(PreferenceBinding(Type.Text, "certificates"))
@@ -65,6 +74,21 @@ class EwpSettingsActivity : ProfileSettingsActivity<EwpBean>() {
         }
         findPreference<EditTextPreference>("uuid")!!.apply {
             summaryProvider = PasswordSummaryProvider
+        }
+
+        val xhttpCategory = findPreference<androidx.preference.PreferenceCategory>("serverXhttpCategory")
+        val xhttpXmuxCategory = findPreference<androidx.preference.PreferenceCategory>("serverXhttpXmuxCategory")
+
+        fun updateTransportView(network: String) {
+            xhttpCategory?.isVisible = network == "xhttp"
+            xhttpXmuxCategory?.isVisible = network == "xhttp"
+        }
+
+        updateTransportView(type.readStringFromCache())
+
+        findPreference<moe.matsuri.nb4a.ui.SimpleMenuPreference>("type")?.setOnPreferenceChangeListener { _, newValue ->
+            updateTransportView(newValue as String)
+            true
         }
 
         // REALITY <-> ECH are mutually exclusive (see EwpFmt buildEwpTLS).

@@ -52,6 +52,15 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
     private val muxType = pbm.add(PreferenceBinding(Type.TextToInt, "muxType"))
     private val muxConcurrency = pbm.add(PreferenceBinding(Type.TextToInt, "muxConcurrency"))
 
+    private val xhttpMode = pbm.add(PreferenceBinding(Type.Text, "xhttpMode"))
+    private val xhttpPaddingBytes = pbm.add(PreferenceBinding(Type.Text, "xhttpPaddingBytes"))
+    private val xhttpXmuxMaxConcurrency = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxMaxConcurrency"))
+    private val xhttpXmuxMaxConnections = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxMaxConnections"))
+    private val xhttpXmuxCMaxReuseTimes = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxCMaxReuseTimes"))
+    private val xhttpXmuxHMaxRequestTimes = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxHMaxRequestTimes"))
+    private val xhttpXmuxHMaxReusableSecs = pbm.add(PreferenceBinding(Type.Text, "xhttpXmuxHMaxReusableSecs"))
+    private val xhttpXmuxHKeepAlivePeriod = pbm.add(PreferenceBinding(Type.TextToInt, "xhttpXmuxHKeepAlivePeriod"))
+
     override fun StandardV2RayBean.init() {
         if (this is TrojanBean) {
             this@StandardV2RaySettingsActivity.uuid.fieldName = "password"
@@ -70,6 +79,8 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
     private lateinit var tlsCamouflageCategory: PreferenceCategory
     private lateinit var wsCategory: PreferenceCategory
     private lateinit var echCategory: PreferenceCategory
+    private lateinit var xhttpCategory: PreferenceCategory
+    private lateinit var xhttpXmuxCategory: PreferenceCategory
 
     override fun PreferenceFragmentCompat.createPreferences(
         savedInstanceState: Bundle?,
@@ -81,6 +92,8 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
         tlsCamouflageCategory = findPreference(Key.SERVER_TLS_CAMOUFLAGE_CATEGORY)!!
         echCategory = findPreference(Key.SERVER_ECH_CATEORY)!!
         wsCategory = findPreference(Key.SERVER_WS_CATEGORY)!!
+        xhttpCategory = findPreference(Key.SERVER_XHTTP_CATEGORY)!!
+        xhttpXmuxCategory = findPreference(Key.SERVER_XHTTP_XMUX_CATEGORY)!!
 
 
         // vmess/vless/http/trojan
@@ -130,6 +143,10 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
         type.preference.apply {
             updateView(type.readStringFromCache())
             this as SimpleMenuPreference
+            if (!isVless) {
+                setEntries(R.array.networks_value_no_xhttp)
+                setEntryValues(R.array.networks_value_no_xhttp)
+            }
             setOnPreferenceChangeListener { _, newValue ->
                 updateView(newValue as String)
                 true
@@ -150,6 +167,8 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
         host.preference.isVisible = false
         path.preference.isVisible = false
         wsCategory.isVisible = false
+        xhttpCategory.isVisible = false
+        xhttpXmuxCategory.isVisible = false
 
         when (network) {
             "tcp" -> {
@@ -182,6 +201,15 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
                 path.preference.setTitle(R.string.http_upgrade_path)
                 host.preference.isVisible = true
                 path.preference.isVisible = true
+            }
+
+            "xhttp" -> {
+                host.preference.setTitle(R.string.xhttp_host)
+                path.preference.setTitle(R.string.xhttp_path)
+                host.preference.isVisible = true
+                path.preference.isVisible = true
+                xhttpCategory.isVisible = true
+                xhttpXmuxCategory.isVisible = true
             }
         }
     }

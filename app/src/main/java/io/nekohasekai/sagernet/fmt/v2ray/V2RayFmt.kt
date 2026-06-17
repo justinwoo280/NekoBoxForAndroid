@@ -227,6 +227,12 @@ fun StandardV2RayBean.parseDuckSoft(url: HttpUrl) {
                 path = it
             }
         }
+
+        "xhttp" -> {
+            url.queryParameter("host")?.let { host = it }
+            url.queryParameter("path")?.let { path = it }
+            url.queryParameter("mode")?.let { xhttpMode = it }
+        }
     }
 
     // maybe from matsuri vmess exoprt
@@ -473,6 +479,14 @@ fun StandardV2RayBean.toUriVMessVLESSTrojan(isTrojan: Boolean): String {
                 builder.setQueryParameter("serviceName", path)
             }
         }
+
+        "xhttp" -> {
+            if (host.isNotBlank()) builder.addQueryParameter("host", host)
+            if (path.isNotBlank()) builder.addQueryParameter("path", path)
+            if (xhttpMode.isNotBlank() && xhttpMode != "auto") {
+                builder.addQueryParameter("mode", xhttpMode)
+            }
+        }
     }
 
     if (security.isNotBlank() && security != "none") {
@@ -582,6 +596,35 @@ fun buildSingBoxOutboundStreamSettings(bean: StandardV2RayBean): V2RayTransportO
                 type = "httpupgrade"
                 host = bean.host
                 path = bean.path
+            }
+        }
+
+        "xhttp" -> {
+            return V2RayTransportOptions_XHTTPOptions().apply {
+                type = "xhttp"
+                mode = bean.xhttpMode.takeIf { it.isNotBlank() } ?: "auto"
+                if (bean.host.isNotBlank()) host = bean.host
+                if (bean.path.isNotBlank()) path = bean.path
+                if (bean.xhttpPaddingBytes.isNotBlank()) x_padding_bytes = bean.xhttpPaddingBytes
+
+                val hasXmux = bean.xhttpXmuxMaxConcurrency.isNotBlank() ||
+                    bean.xhttpXmuxMaxConnections.isNotBlank() ||
+                    bean.xhttpXmuxCMaxReuseTimes.isNotBlank() ||
+                    bean.xhttpXmuxHMaxRequestTimes.isNotBlank() ||
+                    bean.xhttpXmuxHMaxReusableSecs.isNotBlank() ||
+                    (bean.xhttpXmuxHKeepAlivePeriod != null && bean.xhttpXmuxHKeepAlivePeriod > 0)
+                if (hasXmux) {
+                    xmux = V2RayXHTTPXmuxOptions().apply {
+                        if (bean.xhttpXmuxMaxConcurrency.isNotBlank()) max_concurrency = bean.xhttpXmuxMaxConcurrency
+                        if (bean.xhttpXmuxMaxConnections.isNotBlank()) max_connections = bean.xhttpXmuxMaxConnections
+                        if (bean.xhttpXmuxCMaxReuseTimes.isNotBlank()) c_max_reuse_times = bean.xhttpXmuxCMaxReuseTimes
+                        if (bean.xhttpXmuxHMaxRequestTimes.isNotBlank()) h_max_request_times = bean.xhttpXmuxHMaxRequestTimes
+                        if (bean.xhttpXmuxHMaxReusableSecs.isNotBlank()) h_max_reusable_secs = bean.xhttpXmuxHMaxReusableSecs
+                        if (bean.xhttpXmuxHKeepAlivePeriod != null && bean.xhttpXmuxHKeepAlivePeriod > 0) {
+                            h_keep_alive_period = bean.xhttpXmuxHKeepAlivePeriod.toLong()
+                        }
+                    }
+                }
             }
         }
     }

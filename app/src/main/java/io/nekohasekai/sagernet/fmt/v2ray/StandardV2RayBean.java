@@ -66,6 +66,17 @@ public abstract class StandardV2RayBean extends AbstractBean {
 
     public Integer packetEncoding; // 1:packet 2:xudp
 
+    // --------------------------------------- xhttp
+
+    public String xhttpMode;
+    public String xhttpPaddingBytes;
+    public String xhttpXmuxMaxConcurrency;
+    public String xhttpXmuxMaxConnections;
+    public String xhttpXmuxCMaxReuseTimes;
+    public String xhttpXmuxHMaxRequestTimes;
+    public String xhttpXmuxHMaxReusableSecs;
+    public Integer xhttpXmuxHKeepAlivePeriod;
+
     @Override
     public void initializeDefaultValues() {
         super.initializeDefaultValues();
@@ -108,11 +119,20 @@ public abstract class StandardV2RayBean extends AbstractBean {
         if (muxPadding == null) muxPadding = false;
         if (muxType == null) muxType = 0;
         if (muxConcurrency == null) muxConcurrency = 1;
+
+        if (JavaUtil.isNullOrBlank(xhttpMode)) xhttpMode = "auto";
+        if (xhttpPaddingBytes == null) xhttpPaddingBytes = "";
+        if (xhttpXmuxMaxConcurrency == null) xhttpXmuxMaxConcurrency = "";
+        if (xhttpXmuxMaxConnections == null) xhttpXmuxMaxConnections = "";
+        if (xhttpXmuxCMaxReuseTimes == null) xhttpXmuxCMaxReuseTimes = "";
+        if (xhttpXmuxHMaxRequestTimes == null) xhttpXmuxHMaxRequestTimes = "";
+        if (xhttpXmuxHMaxReusableSecs == null) xhttpXmuxHMaxReusableSecs = "";
+        if (xhttpXmuxHKeepAlivePeriod == null) xhttpXmuxHKeepAlivePeriod = 0;
     }
 
     @Override
     public void serialize(ByteBufferOutput output) {
-        output.writeInt(4);
+        output.writeInt(5);
         super.serialize(output);
         output.writeString(uuid);
         output.writeString(encryption);
@@ -141,6 +161,19 @@ public abstract class StandardV2RayBean extends AbstractBean {
             }
             case "grpc": {
                 output.writeString(path);
+                break;
+            }
+            case "xhttp": {
+                output.writeString(host);
+                output.writeString(path);
+                output.writeString(xhttpMode);
+                output.writeString(xhttpPaddingBytes);
+                output.writeString(xhttpXmuxMaxConcurrency);
+                output.writeString(xhttpXmuxMaxConnections);
+                output.writeString(xhttpXmuxCMaxReuseTimes);
+                output.writeString(xhttpXmuxHMaxRequestTimes);
+                output.writeString(xhttpXmuxHMaxReusableSecs);
+                output.writeInt(xhttpXmuxHKeepAlivePeriod);
                 break;
             }
         }
@@ -202,6 +235,21 @@ public abstract class StandardV2RayBean extends AbstractBean {
                     // 解决老版本数据的读取问题
                     input.readString();
                     input.readString();
+                }
+                break;
+            }
+            case "xhttp": {
+                host = input.readString();
+                path = input.readString();
+                if (version >= 5) {
+                    xhttpMode = input.readString();
+                    xhttpPaddingBytes = input.readString();
+                    xhttpXmuxMaxConcurrency = input.readString();
+                    xhttpXmuxMaxConnections = input.readString();
+                    xhttpXmuxCMaxReuseTimes = input.readString();
+                    xhttpXmuxHMaxRequestTimes = input.readString();
+                    xhttpXmuxHMaxReusableSecs = input.readString();
+                    xhttpXmuxHKeepAlivePeriod = input.readInt();
                 }
                 break;
             }
