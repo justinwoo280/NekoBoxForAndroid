@@ -61,9 +61,25 @@
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="sing-box server">
-        <SwitchPreference
-            app:key="sUoT"
-            app:title="UDP over TCP" />
+    <PreferenceCategory app:title="REALITY">
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_vpn_key_24"
+            app:key="realityPubKey"
+            app:title="REALITY public key"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:icon="@drawable/ic_action_copyright"
+            app:key="realityShortId"
+            app:title="REALITY short id"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
+
+    <!-- The sing-box "UDP over TCP" (sUoT) switch is intentionally removed:
+         naive implements its own UDP-over-TCP internally (magic host
+         sp.v2.udp-over-tcp.arpa). Enabling sing-box's UoT would double-wrap UDP
+         (sing-box UoT frame that naive's SOCKS5 server does not understand) and
+         break UDP. sing-box -> naive must stay standard SOCKS5 UDP ASSOCIATE.
+         NaiveBean.sUoT stays (defaults false) for serialization compatibility;
+         ConfigBuilder reads it via reflection and, being false, never injects
+         udp_over_tcp. -->
 </PreferenceScreen>

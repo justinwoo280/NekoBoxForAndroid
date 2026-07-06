@@ -25,6 +25,8 @@ class NaiveSettingsActivity : ProfileSettingsActivity<NaiveBean>() {
         DataStore.serverHeaders = extraHeaders
         DataStore.serverInsecureConcurrency = insecureConcurrency
         DataStore.profileCacheStore.putBoolean("sUoT", sUoT)
+        DataStore.profileCacheStore.putString("realityPubKey", realityPubKey)
+        DataStore.profileCacheStore.putString("realityShortId", realityShortId)
     }
 
     override fun NaiveBean.serialize() {
@@ -39,6 +41,8 @@ class NaiveSettingsActivity : ProfileSettingsActivity<NaiveBean>() {
         extraHeaders = DataStore.serverHeaders.replace("\r\n", "\n")
         insecureConcurrency = DataStore.serverInsecureConcurrency
         sUoT = DataStore.profileCacheStore.getBoolean("sUoT")
+        realityPubKey = DataStore.profileCacheStore.getString("realityPubKey") ?: ""
+        realityShortId = DataStore.profileCacheStore.getString("realityShortId") ?: ""
     }
 
     override fun PreferenceFragmentCompat.createPreferences(

@@ -4,6 +4,7 @@ import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.fmt.LOCALHOST
 import io.nekohasekai.sagernet.ktx.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import org.json.JSONArray
 import org.json.JSONObject
 
 fun parseNaive(link: String): NaiveBean {
@@ -21,6 +22,9 @@ fun parseNaive(link: String): NaiveBean {
         certificates = url.queryParameter("cert")
         extraHeaders = url.queryParameter("extra-headers")?.unUrlSafe()?.replace("\r\n", "\n")
         insecureConcurrency = url.queryParameter("insecure-concurrency")?.toIntOrNull()
+        // REALITY (NaiveProxy-REALITY fork). server_name reuses `sni`.
+        realityPubKey = url.queryParameter("reality-pubkey")
+        realityShortId = url.queryParameter("reality-shortid")
         name = url.fragment
         initializeDefaultValues()
     }
@@ -49,6 +53,14 @@ fun NaiveBean.toUri(proxyOnly: Boolean = false): String {
         }
         if (insecureConcurrency > 0) {
             builder.addQueryParameter("insecure-concurrency", "$insecureConcurrency")
+        }
+        // REALITY params only in the shareable link, never in the proxy URL
+        // passed to naive (naive reads REALITY from its own reality:{} block).
+        if (realityPubKey.isNotBlank()) {
+            builder.addQueryParameter("reality-pubkey", realityPubKey)
+        }
+        if (realityShortId.isNotBlank()) {
+            builder.addQueryParameter("reality-shortid", realityShortId)
         }
     }
     return builder.toLink(if (proxyOnly) proto else "naive+$proto", false)
@@ -85,6 +97,15 @@ fun NaiveBean.buildNaiveConfig(port: Int): String {
         }
         if (insecureConcurrency > 0) {
             put("insecure-concurrency", insecureConcurrency)
+        }
+        // REALITY (NaiveProxy-REALITY fork): server_name reuses the SNI.
+        if (realityPubKey.isNotBlank()) {
+            put("reality", JSONObject().apply {
+                put("server_name", if (sni.isNotBlank()) sni else serverAddress)
+                put("public_key", realityPubKey)
+                if (realityShortId.isNotBlank()) put("short_id", realityShortId)
+                put("version", JSONArray().apply { put(1); put(0); put(0) })
+            })
         }
     }.toStringPretty()
 }
