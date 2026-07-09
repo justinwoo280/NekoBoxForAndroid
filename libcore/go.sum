@@ -61,8 +61,8 @@ github.com/insomniacslk/dhcp v0.0.0-20260220084031-5adc3eb26f91 h1:u9i04mGE3iliB
 github.com/insomniacslk/dhcp v0.0.0-20260220084031-5adc3eb26f91/go.mod h1:qfvBmyDNp+/liLEYWRvqny/PEz9hGe2Dz833eXILSmo=
 github.com/juju/ratelimit v1.0.2 h1:sRxmtRiajbvrcLQT7S+JbqU0ntsb9W2yhSdNN8tWfaI=
 github.com/juju/ratelimit v1.0.2/go.mod h1:qapgC/Gy+xNh9UxzV13HGGl/6UXNN+ct+vwSgWNm/qk=
-github.com/justinwoo280/sing-ewp v0.2.3 h1:7RR0CmlJhLW98jE8gOcRo8i/VgNR97VGrM3Tbuj+Lto=
-github.com/justinwoo280/sing-ewp v0.2.3/go.mod h1:uE/pQEesc1ZeTVFNF/N3FIIl8WOiMglAVbZHc+kCAx4=
+github.com/justinwoo280/sing-ewp v0.2.4 h1:6Tl8Hk/+ojN+d7TivitdPvtQsJWbO/AiQadCtChOu0A=
+github.com/justinwoo280/sing-ewp v0.2.4/go.mod h1:uE/pQEesc1ZeTVFNF/N3FIIl8WOiMglAVbZHc+kCAx4=
 github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
 github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
 github.com/klauspost/cpuid/v2 v2.3.0 h1:S4CRMLnYUhGeDFDqkGriYKdfoFlDnMtqTiI/sFzhA9Y=
