@@ -59,6 +59,11 @@
             app:key="xhttpMode"
             app:title="@string/xhttp_mode"
             app:useSimpleSummaryProvider="true" />
+        <Preference
+            app:key="xhttpModeDefaultsInfo"
+            app:persistent="false"
+            app:selectable="false"
+            app:title="@string/xhttp_mode_defaults_title" />
         <EditTextPreference
             app:key="xhttpPaddingBytes"
             app:title="@string/xhttp_padding_bytes"

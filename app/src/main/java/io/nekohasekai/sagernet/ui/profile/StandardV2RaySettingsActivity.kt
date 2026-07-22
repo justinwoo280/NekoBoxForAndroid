@@ -161,6 +161,32 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
                 true
             }
         }
+
+        // Per-mode XHTTP default hints (mirrors sing-xhttp library defaults).
+        val modeDefaultsInfo = findPreference<androidx.preference.Preference>("xhttpModeDefaultsInfo")
+        fun updateXhttpDefaults(mode: String) {
+            val isStream = mode == "stream-up" || mode == "stream-one"
+            val padding = getString(R.string.xhttp_padding_bytes_default)
+            modeDefaultsInfo?.summary = if (isStream) {
+                getString(
+                    R.string.xhttp_mode_defaults_stream,
+                    getString(R.string.xhttp_stream_secs_default),
+                    padding,
+                )
+            } else {
+                getString(
+                    R.string.xhttp_mode_defaults_packet,
+                    getString(R.string.xhttp_max_post_default_packet),
+                    getString(R.string.xhttp_post_interval_default_packet),
+                    padding,
+                )
+            }
+        }
+        updateXhttpDefaults(xhttpMode.readStringFromCache().takeIf { it.isNotBlank() } ?: "auto")
+        xhttpMode.preference.setOnPreferenceChangeListener { _, newValue ->
+            updateXhttpDefaults(newValue as String)
+            true
+        }
     }
 
     private fun updateView(network: String) {
