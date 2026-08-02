@@ -1,9 +1,14 @@
 # sing-box mod 1.13.x line, which carries:
-#   - xhttp: transport delegated to the standalone sing-xhttp v0.1.3 library
+#   - xhttp: transport delegated to the standalone sing-xhttp v0.1.4 library
 #     (full Xray splithttp parity, REALITY/HTTP3/uTLS, per-mode defaults);
-#     in-tree transport/v2rayxhttp is now a thin bridge. v0.1.1 fixes the
-#     packet-up/stream-* deadlock through response-buffering middleboxes
-#     (Cloudflare) by returning the download GET at connection time.
+#     in-tree transport/v2rayxhttp is now a thin bridge. v0.1.4 opens H2
+#     connections with Chromium's initial SETTINGS and session WINDOW_UPDATE
+#     (HEADER_TABLE_SIZE 65536, INITIAL_WINDOW_SIZE 6 MiB,
+#     MAX_HEADER_LIST_SIZE 256 KiB, WINDOW_UPDATE 15663105) and no longer
+#     closes idle H2 connections, matching a browser; client-side only, wire
+#     format unchanged. v0.1.1 fixes the packet-up/stream-* deadlock through
+#     response-buffering middleboxes (Cloudflare) by returning the download
+#     GET at connection time.
 #   - sing-ewp v0.2.5: the X25519 and ML-KEM-768 halves of the v2.1 hybrid
 #     handshake are computed concurrently instead of sequentially (~40%
 #     lower handshake crypto latency); wire format and derived keys are
@@ -17,5 +22,5 @@
 #     x/net v0.55.0, x/crypto v0.52.0, grpc v1.79.3; requires Go >= 1.25.
 #     govulncheck reports 0 reachable vulnerabilities.
 # Still on the EWP/v2.1 static-identity API.
-export COMMIT_SING_BOX="089135559ca5ceda3246777e5d323070c82b2941"
+export COMMIT_SING_BOX="423afab5f3731c81ff859dabe26cd651ba0ad429"
 export COMMIT_LIBNEKO="1c47a3af71990a7b2192e03292b4d246c308ef0b"
