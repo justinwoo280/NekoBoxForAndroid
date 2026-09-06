@@ -37,13 +37,31 @@ public class EwpBean extends AbstractBean {
     // --------------------------------------- core
     public String uuid;
     /**
-     * EWP/v2.1 server static identity public key (base64-encoded
-     * 32-byte X25519 public key). When set, the client speaks
-     * EWP/v2.1 and binds the handshake KDF to this server identity
-     * (closes audit findings S1 / S2 / H2). Empty falls back to
-     * legacy v2.0 — note that v2.1 servers REJECT v2.0 handshakes.
+     * EWP/v2.3 server signing identity public key (base64-encoded
+     * 32-byte Ed25519 public key). The client pins this identity and
+     * verifies the server's signatures on short-term outer keys and
+     * handshake transcripts. Generate the server's keypair with
+     * `sing-box generate ewp-keypair`; the PublicKey goes here.
+     *
+     * Replaces v2.1's serverStaticPubKey (base64 X25519): v2.3 moved
+     * the server identity from a static X25519 key to an Ed25519
+     * signing identity with signed short-term outer keys (forward
+     * secrecy over the rotation window). Old v2.1 profiles cannot be
+     * migrated automatically — the key material is incompatible and
+     * every v2.3 server has a fresh Ed25519 identity anyway.
      */
-    public String serverStaticPubKey;
+    public String serverPublicKey;
+    /**
+     * EWP/v2.3 server_id: names the listener in the handshake
+     * transcript and in every signed short-term outer key. Must match
+     * the server's "server_id" exactly or the handshake is rejected.
+     */
+    public String serverId;
+    /**
+     * EWP/v2.3 route_epoch: 0 unless the operator rotates route tags.
+     * Must match the server's "route_epoch" when non-zero.
+     */
+    public Integer routeEpoch;
 
     // --------------------------------------- v2ray transport
     // tcp / ws / http / grpc / httpupgrade / quic
@@ -95,7 +113,9 @@ public class EwpBean extends AbstractBean {
     public void initializeDefaultValues() {
         super.initializeDefaultValues();
         if (uuid == null) uuid = "";
-        if (serverStaticPubKey == null) serverStaticPubKey = "";
+        if (serverPublicKey == null) serverPublicKey = "";
+        if (serverId == null) serverId = "";
+        if (routeEpoch == null) routeEpoch = 0;
         if (type == null || type.isEmpty()) type = "tcp";
         if (host == null) host = "";
         if (path == null) path = "";
@@ -139,11 +159,15 @@ public class EwpBean extends AbstractBean {
         // v0: initial layout (EWP/v2.0)
         // v1: + serverStaticPubKey (EWP/v2.1 opt-in)
         // v2: + xhttp transport fields
-        output.writeInt(2);
+        // v3: EWP/v2.3 — replaced serverStaticPubKey with
+        //     serverPublicKey (Ed25519) + serverId + routeEpoch
+        output.writeInt(3);
         super.serialize(output);
 
         output.writeString(uuid);
-        output.writeString(serverStaticPubKey);
+        output.writeString(serverPublicKey);
+        output.writeString(serverId);
+        output.writeInt(routeEpoch);
 
         output.writeString(type);
         output.writeString(host);
@@ -188,12 +212,21 @@ public class EwpBean extends AbstractBean {
         super.deserialize(input);
 
         uuid = input.readString();
-        // v1+ adds the EWP/v2.1 server static identity public key.
-        // v0 profiles default to empty (= legacy v2.0 behavior).
-        if (version >= 1) {
-            serverStaticPubKey = input.readString();
+        if (version >= 3) {
+            serverPublicKey = input.readString();
+            serverId = input.readString();
+            routeEpoch = input.readInt();
         } else {
-            serverStaticPubKey = "";
+            // v1/v2 stored serverStaticPubKey (base64 X25519) here.
+            // Read and DISCARD it: v2.3 server identities are Ed25519
+            // and cannot be derived from the old key. The user must
+            // re-enter the server's Ed25519 public key and server_id.
+            if (version >= 1) {
+                input.readString();
+            }
+            serverPublicKey = "";
+            serverId = "";
+            routeEpoch = 0;
         }
 
         type = input.readString();

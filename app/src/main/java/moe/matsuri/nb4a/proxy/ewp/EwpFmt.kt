@@ -34,11 +34,11 @@ fun buildSingBoxOutboundEwpBean(bean: EwpBean): Outbound_EwpOptions {
         server = bean.serverAddress
         server_port = bean.serverPort
         uuid = bean.uuid
-        // EWP/v2.1 opt-in: when the server static identity is configured,
-        // sing-box will use NewClientV21 and bind the handshake KDF to it.
-        if (bean.serverStaticPubKey.isNotBlank()) {
-            server_static_public_key = bean.serverStaticPubKey
-        }
+        // EWP/v2.3: pin the server's Ed25519 signing identity and the
+        // server_id bound into the handshake transcript.
+        server_public_key = bean.serverPublicKey
+        server_id = bean.serverId
+        bean.routeEpoch?.let { if (it > 0) route_epoch = it.toLong() }
         tls = buildEwpTLS(bean)
         transport = buildEwpTransport(bean)
     }
@@ -164,7 +164,8 @@ private fun buildEwpTransport(bean: EwpBean): V2RayTransportOptions? {
 //                         Link scheme
 // =================================================================
 //
-//   ewp://<uuid>@host:port?type=ws&host=...&path=...&sni=...&alpn=...
+//   ewp://<uuid>@host:port?pk=<ed25519-pub>&sid=<server-id>&type=ws
+//        &host=...&path=...&sni=...&alpn=...
 //        &fp=chrome&insecure=0&ech=1&echQs=public.example
 //        #remarks
 //
@@ -180,8 +181,10 @@ fun EwpBean.toUri(): String {
         builder.encodedFragment(name.urlSafe())
     }
 
-    // EWP/v2.1: server static identity public key (base64 X25519).
-    if (serverStaticPubKey.isNotBlank()) builder.addQueryParameter("sk", serverStaticPubKey)
+    // EWP/v2.3: server Ed25519 signing identity public key + server_id.
+    if (serverPublicKey.isNotBlank()) builder.addQueryParameter("pk", serverPublicKey)
+    if (serverId.isNotBlank()) builder.addQueryParameter("sid", serverId)
+    routeEpoch?.let { if (it > 0) builder.addQueryParameter("re", it.toString()) }
 
     if (type.isNotBlank() && type != "tcp") builder.addQueryParameter("type", type)
     if (host.isNotBlank()) builder.addQueryParameter("host", host)
@@ -217,8 +220,13 @@ fun parseEwp(url: String): EwpBean {
         name = link.fragment
         uuid = link.username
 
-        // EWP/v2.1: server static identity public key (base64 X25519).
-        serverStaticPubKey = link.queryParameter("sk") ?: ""
+        // EWP/v2.3: server Ed25519 signing identity + server_id.
+        // ("sk" from v2.1 links is base64 X25519 and cannot be reused;
+        // it is intentionally ignored so old links fail loudly at
+        // connect time instead of silently misbinding identity.)
+        serverPublicKey = link.queryParameter("pk") ?: ""
+        serverId = link.queryParameter("sid") ?: ""
+        routeEpoch = link.queryParameter("re")?.toIntOrNull() ?: 0
 
         type = link.queryParameter("type") ?: "tcp"
         host = link.queryParameter("host") ?: ""

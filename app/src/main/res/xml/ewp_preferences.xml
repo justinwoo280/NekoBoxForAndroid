@@ -23,9 +23,19 @@
             app:title="@string/uuid" />
         <EditTextPreference
             app:icon="@drawable/ic_baseline_vpn_key_24"
-            app:key="serverStaticPubKey"
-            app:summary="EWP/v2.1: base64 X25519 server identity (leave blank for legacy v2.0)"
-            app:title="Server Static Public Key" />
+            app:key="serverPublicKey"
+            app:summary="EWP/v2.3: base64 Ed25519 server signing public key (from `sing-box generate ewp-keypair`)"
+            app:title="Server Public Key" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_vpn_key_24"
+            app:key="serverId"
+            app:summary="EWP/v2.3: must match the server's server_id exactly"
+            app:title="Server ID" />
+        <EditTextPreference
+            app:icon="@drawable/ic_baseline_vpn_key_24"
+            app:key="routeEpoch"
+            app:summary="EWP/v2.3: 0 unless the operator rotates route tags"
+            app:title="Route Epoch" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/transport_settings">

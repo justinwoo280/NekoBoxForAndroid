@@ -4690,11 +4690,21 @@ public class SingBoxOptions {
 
         public String uuid;
 
-        // EWP/v2.1 server static identity public key (base64 X25519).
-        // When set, client speaks v2.1 (binds handshake KDF to server
-        // identity, closes audit findings S1/S2/H2). Empty -> v2.0
-        // legacy mode (rejected by v2.1 servers).
-        public String server_static_public_key;
+        // EWP/v2.3 server signing identity public key (base64 Ed25519).
+        // The client pins this identity and verifies the server's
+        // signatures on short-term outer keys and transcripts.
+        // Maps to sing-box EWPOutboundOptions.server_public_key.
+        public String server_public_key;
+
+        // EWP/v2.3 server_id: must match the server's "server_id"
+        // exactly; it is bound into the handshake transcript and every
+        // signed short-term outer key.
+        // Maps to sing-box EWPOutboundOptions.server_id.
+        public String server_id;
+
+        // EWP/v2.3 route_epoch: 0 unless the operator rotates route
+        // tags; must match the server when non-zero.
+        public Long route_epoch;
 
         public String network;
 
