@@ -39,7 +39,7 @@ require (
 	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/insomniacslk/dhcp v0.0.0-20260220084031-5adc3eb26f91 // indirect
 	github.com/juju/ratelimit v1.0.2 // indirect
-	github.com/justinwoo280/sing-ewp v0.3.0 // indirect
+	github.com/justinwoo280/sing-ewp v0.3.1 // indirect
 	github.com/justinwoo280/sing-xhttp v0.1.6 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect

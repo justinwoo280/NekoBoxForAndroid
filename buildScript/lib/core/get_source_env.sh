@@ -1,4 +1,12 @@
 # sing-box mod 1.13.x line, which carries:
+#   - EWP/v2.3.1 (sing-ewp v0.3.1): ticket-based 1-RTT resumption on top
+#     of v2.3 — servers mint rotating tickets after every handshake and
+#     clients with an in-memory store resume in 1 RTT (1.5-RTT to data)
+#     instead of the six-stage 3-RTT; rejected/expired tickets silently
+#     fall back to the full handshake, and no store means byte-identical
+#     v2.3.0 behavior. Every resumption still runs a fresh hybrid
+#     X25519+ML-KEM exchange (tickets never feed session keys); no 0-RTT.
+#     The sing-box outbound enables it with zero config surface.
 #   - EWP/v2.3 (sing-ewp v0.3.0): six-stage authenticated handshake with
 #     full transcript binding, Ed25519 server signing identity + signed
 #     short-term outer keys (replacing the v2.1 static X25519 server key),
@@ -25,5 +33,5 @@
 #   - security: bump deps for GO-2026-5856 (crypto/tls ECH PSK leak),
 #     x/net v0.55.0, x/crypto v0.52.0, grpc v1.79.3; requires Go >= 1.25.
 #     govulncheck reports 0 reachable vulnerabilities.
-export COMMIT_SING_BOX="5f6bd3b1367568578daaf65294a8877ff39fd497"
+export COMMIT_SING_BOX="0e1e606db10d43af3e750860466fc74b302df2bd"
 export COMMIT_LIBNEKO="1c47a3af71990a7b2192e03292b4d246c308ef0b"
