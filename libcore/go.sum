@@ -61,6 +61,8 @@ github.com/insomniacslk/dhcp v0.0.0-20260220084031-5adc3eb26f91 h1:u9i04mGE3iliB
 github.com/insomniacslk/dhcp v0.0.0-20260220084031-5adc3eb26f91/go.mod h1:qfvBmyDNp+/liLEYWRvqny/PEz9hGe2Dz833eXILSmo=
 github.com/juju/ratelimit v1.0.2 h1:sRxmtRiajbvrcLQT7S+JbqU0ntsb9W2yhSdNN8tWfaI=
 github.com/juju/ratelimit v1.0.2/go.mod h1:qapgC/Gy+xNh9UxzV13HGGl/6UXNN+ct+vwSgWNm/qk=
+github.com/justinwoo280/sing-ewp v0.3.0 h1:Ta/5CMYiEd7ObPLe+is+dGB95EefmXQe+MKJOjF+Ois=
+github.com/justinwoo280/sing-ewp v0.3.0/go.mod h1:uE/pQEesc1ZeTVFNF/N3FIIl8WOiMglAVbZHc+kCAx4=
 github.com/justinwoo280/sing-xhttp v0.1.6 h1:Nd9+EDW6YZYaZJbnQxtl2urVG48P34/4XRm7wWuqwj8=
 github.com/justinwoo280/sing-xhttp v0.1.6/go.mod h1:XAjRVYDoBeE/Ar2Klfe6ZQXFIcWW5O9HEUx66S5TvZE=
 github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
